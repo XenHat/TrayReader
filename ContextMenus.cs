@@ -190,15 +190,15 @@ namespace TrayReader
                 show_notifications = false;
             }
             bool debug = Settings.Default.Debug;
-            System.Collections.Specialized.StringCollection FeedCollection = Settings.Default.SettingFeedList;
+            List<string> FeedList = Helper.Convert(Settings.Default.SettingFeedList);
             List<string> feed_title_list = new List<string>();
-            if (FeedCollection != null)
+            if (FeedList != null)
             {
                 short max_entry_per_site = Settings.Default.EntriesPerFeed;
                 StringCollection loaded_urls = new StringCollection();
 
                 string temporaryRssFile = System.IO.Path.GetTempFileName();
-                foreach (var url_iter in FeedCollection)
+                foreach (var url_iter in FeedList)
                 {
                     string saved_url = url_iter.TrimEnd('/').Replace(".xml", "");
                     string tip_title = "";
@@ -281,7 +281,10 @@ namespace TrayReader
                             //TODO: Get "Info" field and set as tooltip
                         }
                         loaded_urls.Add(saved_url);
-                        menu.Items.Add(new ToolStripSeparator()); // Separator.
+                        if (url_iter != FeedList.Last())
+                        {
+                            menu.Items.Add(new ToolStripSeparator()); // Separator.
+                        }
                     }
                 }
                 // Must be saved after the foreach loop to prevent overwriting the working data
