@@ -197,6 +197,7 @@ namespace TrayReader
                 short max_entry_per_site = Settings.Default.EntriesPerFeed;
                 StringCollection loaded_urls = new StringCollection();
 
+                string temporaryRssFile = System.IO.Path.GetTempFileName();
                 foreach (var url_iter in FeedCollection)
                 {
                     string saved_url = url_iter.TrimEnd('/').Replace(".xml", "");
@@ -226,7 +227,7 @@ namespace TrayReader
                         XmlReader r = new MyXmlReader(saved_url);
                         SyndicationFeed feed = SyndicationFeed.Load(r);
                         Rss20FeedFormatter rssFormatter = feed.GetRss20Formatter();
-                        XmlTextWriter rssWriter = new XmlTextWriter("rss.xml", Encoding.UTF8);
+                        XmlTextWriter rssWriter = new XmlTextWriter(temporaryRssFile, Encoding.UTF8);
                         rssWriter.Formatting = Formatting.Indented;
                         rssFormatter.WriteTo(rssWriter);
                         rssWriter.Close();
@@ -287,11 +288,11 @@ namespace TrayReader
                 Settings.Default.SettingFeedList.Clear();
                 Settings.Default.SettingFeedList = loaded_urls;
                 Settings.Default.Save();
-                if (File.Exists("rss.xml"))
+                if (File.Exists(temporaryRssFile))
                 {
                     try
                     {
-                        File.Delete("rss.xml");
+                        File.Delete(temporaryRssFile);
                     }
                     catch (Exception ex)
                     {
