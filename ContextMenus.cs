@@ -200,20 +200,19 @@ namespace TrayReader
                 string temporaryRssFile = System.IO.Path.GetTempFileName();
                 foreach (var url_iter in FeedList)
                 {
-                    string saved_url = url_iter.TrimEnd('/').Replace(".xml", "");
                     string tip_title = "";
                     if (show_notifications)
                     {
                         tip_title = "Loading";
                     }
-                    if (loaded_urls.Contains(saved_url))
+                    if (loaded_urls.Contains(url_iter))
                     {
                         if (show_notifications)
                         {
                             tip_title += "... (Ignored)";
                         }
                     }
-                    else if (!Helper.ValidateURL(saved_url))
+                    else if (!Helper.ValidateURL(url_iter))
                     {
                         if (show_notifications)
                         {
@@ -224,7 +223,7 @@ namespace TrayReader
                     {
                         // Hack to handle invalid RSS 2.0 dates
                         // https://stackoverflow.com/a/3936714
-                        XmlReader r = new MyXmlReader(saved_url);
+                        XmlReader r = new MyXmlReader(url_iter);
                         SyndicationFeed feed = SyndicationFeed.Load(r);
                         Rss20FeedFormatter rssFormatter = feed.GetRss20Formatter();
                         XmlTextWriter rssWriter = new XmlTextWriter(temporaryRssFile, Encoding.UTF8);
@@ -280,7 +279,7 @@ namespace TrayReader
                             menu.Items.Add(item);
                             //TODO: Get "Info" field and set as tooltip
                         }
-                        loaded_urls.Add(saved_url);
+                        loaded_urls.Add(url_iter);
                         if (url_iter != FeedList.Last())
                         {
                             menu.Items.Add(new ToolStripSeparator()); // Separator.
