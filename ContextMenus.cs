@@ -399,6 +399,7 @@ namespace TrayReader
         private void Exit_Click(object sender, EventArgs e)
         {
             // Quit without further ado.
+            TrayReader.ProcessIcon.ni.Visible = false;
             Application.Exit();
         }
     }
