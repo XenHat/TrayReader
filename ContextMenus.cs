@@ -1,18 +1,19 @@
-﻿using System;
+﻿// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Reflection;
 using System.ServiceModel.Syndication;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
-using TrayReader.Properties;
+using TrayApp.Properties;
 
-namespace TrayReader
+namespace TrayApp
 {
     /// <summary>
     ///
@@ -23,148 +24,6 @@ namespace TrayReader
         /// Is the About box displayed?
         /// </summary>
         private bool isAboutLoaded = false;
-
-        private void showToolTip(string text, string title = "")
-        {
-            if (title == "")
-            {
-                title = Program.ProductName;
-            }
-            ProcessIcon.ni.BalloonTipTitle = title;
-            ProcessIcon.ni.BalloonTipText = text;
-            ProcessIcon.ni.ShowBalloonTip(1);
-        }
-
-        private class MyXmlReader : XmlTextReader
-        {
-            private bool readingDate = false;
-            private const string CustomUtcDateTimeFormat = "ddd MMM dd HH:mm:ss Z yyyy"; // Wed Oct 07 08:00:07 GMT 2009
-
-            public MyXmlReader(Stream s) : base(s)
-            {
-            }
-
-            public MyXmlReader(string inputUri) : base(inputUri)
-            {
-            }
-
-            public override void ReadStartElement()
-            {
-                if (string.Equals(base.NamespaceURI, string.Empty, StringComparison.InvariantCultureIgnoreCase) &&
-                    (string.Equals(base.LocalName, "lastBuildDate", StringComparison.InvariantCultureIgnoreCase) ||
-                    string.Equals(base.LocalName, "pubDate", StringComparison.InvariantCultureIgnoreCase)))
-                {
-                    readingDate = true;
-                }
-                base.ReadStartElement();
-            }
-
-            public override void ReadEndElement()
-            {
-                if (readingDate)
-                {
-                    readingDate = false;
-                }
-                base.ReadEndElement();
-            }
-
-            public override string ReadString()
-            {
-                if (readingDate)
-                {
-                    string dateString = base.ReadString();
-                    DateTime dt;
-                    if (!DateTime.TryParse(dateString, out dt))
-                        dt = DateTime.ParseExact(dateString, CustomUtcDateTimeFormat, System.Globalization.CultureInfo.InvariantCulture);
-                    return dt.ToUniversalTime().ToString("R", System.Globalization.CultureInfo.InvariantCulture);
-                }
-                else
-                {
-                    return base.ReadString();
-                }
-            }
-        }
-
-        public ContextMenuStrip CreateLoadingMenu()
-        {
-            ContextMenuStrip menu = new ContextMenuStrip();
-            ToolStripMenuItem item;
-            // Add a feed.
-            item = new ToolStripMenuItem()
-            {
-                Text = "Loading..."
-            };
-            item.Enabled = false;
-            menu.Items.Add(item);
-            return menu;
-        }
-
-        public ContextMenuStrip CreateOptionsMenu()
-        {
-            ContextMenuStrip menu = new ContextMenuStrip();
-            ToolStripMenuItem item;
-
-            // Add a feed.
-            item = new ToolStripMenuItem()
-            {
-                Text = "Add Feed",
-                Image = Resources.Rss
-            };
-            item.Click += new EventHandler(AddFeed_Click);
-            menu.Items.Add(item);
-
-            // About box
-            item = new ToolStripMenuItem()
-            {
-                Text = "About",
-                Image = Resources.About
-            };
-            item.Click += new EventHandler(About_Click);
-            menu.Items.Add(item);
-
-            // Notifications On/Off
-            item = new ToolStripMenuItem()
-            {
-                Text = "Notifications",
-                Checked = Settings.Default.ShowNotifications,
-            };
-            if (item.Checked)
-            {
-                item.Image = Resources.checkmark;
-            }
-            item.Click += new EventHandler(Notification_Setting_Click);
-            menu.Items.Add(item);
-
-            // Add to Startup
-            item = new ToolStripMenuItem()
-            {
-                Text = "Run at Login",
-                Checked = Settings.Default.AutomaticStartup,
-            };
-            if (item.Checked)
-            {
-                item.Image = Resources.checkmark;
-            }
-            item.Click += new EventHandler(Startup_Click);
-            menu.Items.Add(item);
-
-            // Separator.
-            menu.Items.Add(new ToolStripSeparator());
-
-            // Exit.
-            item = new ToolStripMenuItem()
-            {
-                Text = "Exit",
-                Image = Resources.Exit
-            };
-            item.Click += new System.EventHandler(Exit_Click);
-            menu.Items.Add(item);
-
-            System.GC.Collect(3, System.GCCollectionMode.Forced);
-            System.GC.WaitForFullGCComplete();
-
-            return menu;
-        }
 
         /// <summary>
         /// Creates this instance.
@@ -318,36 +177,85 @@ namespace TrayReader
             return menu;
         }
 
-        private void FeedEntry_Click(object sender, EventArgs e, string u)
+        public ContextMenuStrip CreateLoadingMenu()
         {
-            try
+            ContextMenuStrip menu = new ContextMenuStrip();
+            ToolStripMenuItem item;
+            // Add a feed.
+            item = new ToolStripMenuItem()
             {
-                Process.Start(u);
-            }
-            catch (Exception ex)
-            {
-                Program.ExceptionHandler(ex);
-            }
+                Text = "Loading..."
+            };
+            item.Enabled = false;
+            menu.Items.Add(item);
+            return menu;
         }
 
-        /// <summary>
-        /// Handles the Click event of the Add Feed control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-        private void AddFeed_Click(object sender, EventArgs e)
+        public ContextMenuStrip CreateOptionsMenu()
         {
-            new AddFeed().ShowDialog();
-        }
+            ContextMenuStrip menu = new ContextMenuStrip();
+            ToolStripMenuItem item;
 
-        /// <summary>
-        /// Handles the Click event of the Explorer control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-        private void Explorer_Click(object sender, EventArgs e)
-        {
-            Process.Start("explorer", null);
+            // Add a feed.
+            item = new ToolStripMenuItem()
+            {
+                Text = "Add Feed",
+                Image = Resources.Rss
+            };
+            item.Click += new EventHandler(AddFeed_Click);
+            menu.Items.Add(item);
+
+            // About box
+            item = new ToolStripMenuItem()
+            {
+                Text = "About",
+                Image = Resources.About
+            };
+            item.Click += new EventHandler(About_Click);
+            menu.Items.Add(item);
+
+            // Notifications On/Off
+            item = new ToolStripMenuItem()
+            {
+                Text = "Notifications",
+                Checked = Settings.Default.ShowNotifications,
+            };
+            if (item.Checked)
+            {
+                item.Image = Resources.checkmark;
+            }
+            item.Click += new EventHandler(Notification_Setting_Click);
+            menu.Items.Add(item);
+
+            // Add to Startup
+            item = new ToolStripMenuItem()
+            {
+                Text = "Run at Login",
+                Checked = Settings.Default.AutomaticStartup,
+            };
+            if (item.Checked)
+            {
+                item.Image = Resources.checkmark;
+            }
+            item.Click += new EventHandler(Startup_Click);
+            menu.Items.Add(item);
+
+            // Separator.
+            menu.Items.Add(new ToolStripSeparator());
+
+            // Exit.
+            item = new ToolStripMenuItem()
+            {
+                Text = "Exit",
+                Image = Resources.Exit
+            };
+            item.Click += new System.EventHandler(Exit_Click);
+            menu.Items.Add(item);
+
+            System.GC.Collect(3, System.GCCollectionMode.Forced);
+            System.GC.WaitForFullGCComplete();
+
+            return menu;
         }
 
         /// <summary>
@@ -366,6 +274,50 @@ namespace TrayReader
         }
 
         /// <summary>
+        /// Handles the Click event of the Add Feed control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+        private void AddFeed_Click(object sender, EventArgs e)
+        {
+            new AddFeed().ShowDialog();
+        }
+
+        /// <summary>
+        /// Handles the Click event of the Exit control.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+        private void Exit_Click(object sender, EventArgs e)
+        {
+            // Quit without further ado.
+            TrayApp.ProcessIcon.ni.Visible = false;
+            Application.Exit();
+        }
+
+        /// <summary>
+        /// Handles the Click event of the Explorer control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+        private void Explorer_Click(object sender, EventArgs e)
+        {
+            Process.Start("explorer", null);
+        }
+
+        private void FeedEntry_Click(object sender, EventArgs e, string u)
+        {
+            try
+            {
+                Process.Start(u);
+            }
+            catch (Exception ex)
+            {
+                Program.ExceptionHandler(ex);
+            }
+        }
+
+        /// <summary>
         /// Handles the Click event of the Notification Setting control.
         /// </summary>
         /// <param name="sender">The sender.</param>
@@ -374,7 +326,18 @@ namespace TrayReader
         {
             Settings.Default.ShowNotifications = !Settings.Default.ShowNotifications;
             Settings.Default.Save();
-            TrayReader.ProcessIcon.ni.ContextMenuStrip = new ContextMenus().CreateFeedsMenu(false);
+            TrayApp.ProcessIcon.ni.ContextMenuStrip = new ContextMenus().CreateFeedsMenu(false);
+        }
+
+        private void showToolTip(string text, string title = "")
+        {
+            if (title == "")
+            {
+                title = Program.ProductName;
+            }
+            ProcessIcon.ni.BalloonTipTitle = title;
+            ProcessIcon.ni.BalloonTipText = text;
+            ProcessIcon.ni.ShowBalloonTip(1);
         }
 
         /// <summary>
@@ -388,19 +351,58 @@ namespace TrayReader
             Integration.AddToStartup(startUp);
             Settings.Default.AutomaticStartup = startUp;
             Settings.Default.Save();
-            TrayReader.ProcessIcon.ni.ContextMenuStrip = new ContextMenus().CreateFeedsMenu(false);
+            TrayApp.ProcessIcon.ni.ContextMenuStrip = new ContextMenus().CreateFeedsMenu(false);
         }
 
-        /// <summary>
-        /// Handles the Click event of the Exit control.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
-        private void Exit_Click(object sender, EventArgs e)
+        private class MyXmlReader : XmlTextReader
         {
-            // Quit without further ado.
-            TrayReader.ProcessIcon.ni.Visible = false;
-            Application.Exit();
+            private const string CustomUtcDateTimeFormat = "ddd MMM dd HH:mm:ss Z yyyy";
+            private bool readingDate = false;
+            // Wed Oct 07 08:00:07 GMT 2009
+
+            public MyXmlReader(Stream s) : base(s)
+            {
+            }
+
+            public MyXmlReader(string inputUri) : base(inputUri)
+            {
+            }
+
+            public override void ReadEndElement()
+            {
+                if (readingDate)
+                {
+                    readingDate = false;
+                }
+                base.ReadEndElement();
+            }
+
+            public override void ReadStartElement()
+            {
+                if (string.Equals(base.NamespaceURI, string.Empty, StringComparison.InvariantCultureIgnoreCase) &&
+                    (string.Equals(base.LocalName, "lastBuildDate", StringComparison.InvariantCultureIgnoreCase) ||
+                    string.Equals(base.LocalName, "pubDate", StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    readingDate = true;
+                }
+                base.ReadStartElement();
+            }
+
+            public override string ReadString()
+            {
+                if (readingDate)
+                {
+                    string dateString = base.ReadString();
+                    DateTime dt;
+                    if (!DateTime.TryParse(dateString, out dt))
+                        dt = DateTime.ParseExact(dateString, CustomUtcDateTimeFormat, System.Globalization.CultureInfo.InvariantCulture);
+                    return dt.ToUniversalTime().ToString("R", System.Globalization.CultureInfo.InvariantCulture);
+                }
+                else
+                {
+                    return base.ReadString();
+                }
+            }
         }
     }
 }

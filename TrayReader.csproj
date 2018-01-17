@@ -8,7 +8,7 @@
     <ProjectGuid>{F317AF2E-9704-4A2A-BDAE-B4662ED9483B}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TrayReader</RootNamespace>
+    <RootNamespace>TrayApp</RootNamespace>
     <AssemblyName>TrayReader</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
@@ -34,7 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>TrayReader.Program</StartupObject>
+    <StartupObject>TrayApp.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Images\rss_icon.ico</ApplicationIcon>

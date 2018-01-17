@@ -1,4 +1,4 @@
-﻿namespace TrayReader
+﻿namespace TrayApp
 {
     partial class AddFeed
     {

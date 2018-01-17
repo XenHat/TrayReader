@@ -1,8 +1,11 @@
-﻿using System;
+﻿// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
+using System;
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace TrayReader
+namespace TrayApp
 {
     partial class AboutBox : Form
     {
@@ -17,30 +20,29 @@ namespace TrayReader
             this.textBoxDescription.Text = AssemblyDescription;
         }
 
-        #region Assembly Attribute Accessors
-
-        public string AssemblyTitle
+        public string AssemblyCompany
         {
             get
             {
-                object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
-                if (attributes.Length > 0)
+                object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCompanyAttribute), false);
+                if (attributes.Length == 0)
                 {
-                    AssemblyTitleAttribute titleAttribute = (AssemblyTitleAttribute)attributes[0];
-                    if (titleAttribute.Title != "")
-                    {
-                        return titleAttribute.Title;
-                    }
+                    return "";
                 }
-                return System.IO.Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
+                return ((AssemblyCompanyAttribute)attributes[0]).Company;
             }
         }
 
-        public string AssemblyVersion
+        public string AssemblyCopyright
         {
             get
             {
-                return Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false);
+                if (attributes.Length == 0)
+                {
+                    return "";
+                }
+                return ((AssemblyCopyrightAttribute)attributes[0]).Copyright;
             }
         }
 
@@ -70,32 +72,29 @@ namespace TrayReader
             }
         }
 
-        public string AssemblyCopyright
+        public string AssemblyTitle
         {
             get
             {
-                object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false);
-                if (attributes.Length == 0)
+                object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
+                if (attributes.Length > 0)
                 {
-                    return "";
+                    AssemblyTitleAttribute titleAttribute = (AssemblyTitleAttribute)attributes[0];
+                    if (titleAttribute.Title != "")
+                    {
+                        return titleAttribute.Title;
+                    }
                 }
-                return ((AssemblyCopyrightAttribute)attributes[0]).Copyright;
+                return System.IO.Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
             }
         }
 
-        public string AssemblyCompany
+        public string AssemblyVersion
         {
             get
             {
-                object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCompanyAttribute), false);
-                if (attributes.Length == 0)
-                {
-                    return "";
-                }
-                return ((AssemblyCompanyAttribute)attributes[0]).Company;
+                return Assembly.GetExecutingAssembly().GetName().Version.ToString();
             }
         }
-
-        #endregion Assembly Attribute Accessors
     }
 }
