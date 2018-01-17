@@ -32,7 +32,7 @@ namespace TrayApp
             try
             {
                 var potential_url = this.currentURLInput;
-                if (Helper.ValidateURL(potential_url))
+                if (Helper.ValidateInput(potential_url))
                 {
                     Settings.Default.SettingFeedList.Add(potential_url.TrimEnd('/'));
                     Settings.Default.Save();
@@ -53,7 +53,7 @@ namespace TrayApp
             {
                 text = "http://" + text;
             }
-            can_add = Helper.ValidateURL(text);
+            can_add = Helper.ValidateInput(text);
             if (can_add)
             {
                 textBox1.BackColor = Color.Empty;

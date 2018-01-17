@@ -11,7 +11,6 @@ using System.ServiceModel.Syndication;
 using System.Text;
 using System.Windows.Forms;
 using System.Xml;
-using TrayApp.Properties;
 
 namespace TrayApp
 {
@@ -38,22 +37,22 @@ namespace TrayApp
 
             if (Helper.NeedUpgrade)
             {
-                Settings.Default.Upgrade();
-                Settings.Default.Save();
+                Properties.Settings.Default.Upgrade();
+                Properties.Settings.Default.Save();
                 Helper.NeedUpgrade = false;
             }
-            Settings.Default.Reload();
-            bool show_notifications = Settings.Default.ShowNotifications;
+            Properties.Settings.Default.Reload();
+            bool show_notifications = Properties.Settings.Default.ShowNotifications;
             if (!allow_notifications)
             {
                 show_notifications = false;
             }
-            bool debug = Settings.Default.Debug;
-            List<string> FeedList = Helper.Convert(Settings.Default.SettingFeedList);
+            bool debug = Properties.Settings.Default.Debug;
+            List<string> FeedList = Helper.Convert(Properties.Settings.Default.SettingFeedList);
             List<string> feed_title_list = new List<string>();
             if (FeedList != null)
             {
-                short max_entry_per_site = Settings.Default.EntriesPerFeed;
+                short max_entry_per_site = Properties.Settings.Default.EntriesPerFeed;
                 StringCollection loaded_urls = new StringCollection();
 
                 string temporaryRssFile = System.IO.Path.GetTempFileName();
@@ -71,7 +70,7 @@ namespace TrayApp
                             tip_title += "... (Ignored)";
                         }
                     }
-                    else if (!Helper.ValidateURL(url_iter))
+                    else if (!Helper.ValidateInput(url_iter))
                     {
                         if (show_notifications)
                         {
@@ -92,7 +91,7 @@ namespace TrayApp
                         item = new ToolStripMenuItem
                         {
                             Text = rssFormatter.Feed.Title.Text,
-                            Image = Resources.Rss
+                            Image = Properties.Resources.Rss
                         };
                         //if (show_notifications)
                         //{
@@ -146,9 +145,9 @@ namespace TrayApp
                     }
                 }
                 // Must be saved after the foreach loop to prevent overwriting the working data
-                Settings.Default.SettingFeedList.Clear();
-                Settings.Default.SettingFeedList = loaded_urls;
-                Settings.Default.Save();
+                Properties.Settings.Default.SettingFeedList.Clear();
+                Properties.Settings.Default.SettingFeedList = loaded_urls;
+                Properties.Settings.Default.Save();
                 if (File.Exists(temporaryRssFile))
                 {
                     try
@@ -200,7 +199,7 @@ namespace TrayApp
             item = new ToolStripMenuItem()
             {
                 Text = "Add Feed",
-                Image = Resources.Rss
+                Image = Properties.Resources.Rss
             };
             item.Click += new EventHandler(AddFeed_Click);
             menu.Items.Add(item);
@@ -209,7 +208,7 @@ namespace TrayApp
             item = new ToolStripMenuItem()
             {
                 Text = "About",
-                Image = Resources.About
+                Image = Properties.Resources.About
             };
             item.Click += new EventHandler(About_Click);
             menu.Items.Add(item);
@@ -218,11 +217,11 @@ namespace TrayApp
             item = new ToolStripMenuItem()
             {
                 Text = "Notifications",
-                Checked = Settings.Default.ShowNotifications,
+                Checked = Properties.Settings.Default.ShowNotifications,
             };
             if (item.Checked)
             {
-                item.Image = Resources.checkmark;
+                item.Image = Properties.Resources.checkmark;
             }
             item.Click += new EventHandler(Notification_Setting_Click);
             menu.Items.Add(item);
@@ -231,11 +230,11 @@ namespace TrayApp
             item = new ToolStripMenuItem()
             {
                 Text = "Run at Login",
-                Checked = Settings.Default.AutomaticStartup,
+                Checked = Properties.Settings.Default.AutomaticStartup,
             };
             if (item.Checked)
             {
-                item.Image = Resources.checkmark;
+                item.Image = Properties.Resources.checkmark;
             }
             item.Click += new EventHandler(Startup_Click);
             menu.Items.Add(item);
@@ -247,7 +246,7 @@ namespace TrayApp
             item = new ToolStripMenuItem()
             {
                 Text = "Exit",
-                Image = Resources.Exit
+                Image = Properties.Resources.Exit
             };
             item.Click += new System.EventHandler(Exit_Click);
             menu.Items.Add(item);
@@ -324,8 +323,8 @@ namespace TrayApp
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void Notification_Setting_Click(object sender, EventArgs e)
         {
-            Settings.Default.ShowNotifications = !Settings.Default.ShowNotifications;
-            Settings.Default.Save();
+            Properties.Settings.Default.ShowNotifications = !Properties.Settings.Default.ShowNotifications;
+            Properties.Settings.Default.Save();
             TrayApp.ProcessIcon.ni.ContextMenuStrip = new ContextMenus().CreateFeedsMenu(false);
         }
 
@@ -347,10 +346,10 @@ namespace TrayApp
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void Startup_Click(object sender, EventArgs e)
         {
-            bool startUp = !Settings.Default.AutomaticStartup;
+            bool startUp = !Properties.Settings.Default.AutomaticStartup;
             Integration.AddToStartup(startUp);
-            Settings.Default.AutomaticStartup = startUp;
-            Settings.Default.Save();
+            Properties.Settings.Default.AutomaticStartup = startUp;
+            Properties.Settings.Default.Save();
             TrayApp.ProcessIcon.ni.ContextMenuStrip = new ContextMenus().CreateFeedsMenu(false);
         }
 

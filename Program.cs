@@ -33,7 +33,7 @@ namespace TrayApp
             return collection;
         }
 
-        public static bool ValidateURL(string url)
+        public static bool ValidateInput(string url)
         {
             return Uri.IsWellFormedUriString(url, UriKind.Absolute) && url.Contains(".") && url.Contains("http") && url.Contains("://");
         }
