@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/badge/license-AFPL-blue.svg)](https://tldrlegal.com/license/aladdin-free-public-license) ![Maintained](https://img.shields.io/maintenance/yes/2023.svg)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](https://tldrlegal.com/license/aladdin-free-public-license) ![Maintained](https://img.shields.io/maintenance/yes/2023.svg)
 
 # TrayReader
 
